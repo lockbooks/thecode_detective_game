@@ -21,8 +21,12 @@ test_surface = pygame.Surface((width_ts, height_ts))
 # 3 - добавляем цвет
 test_surface.fill('White')
 
-# загружаем в переменную картинку из папки с нашим файлом
-back = pygame.image.load('code_game_back.jpg')
+# загружаем в переменную картинки из папки с нашим файлом
+back = pygame.image.load('code_game_back_floor.jpg')
+hero = pygame.image.load('detective.png')
+pot = pygame.image.load('teapot.png')
+candle = pygame.image.load('candlestick.png')
+box = pygame.image.load('wooden_box.png')
 
 # даём название окну игры
 pygame.display.set_caption("Detective CODE Game")
@@ -44,11 +48,12 @@ while game:
             # добавляем корректное завершение работы
             exit()
 
-    # размещаем новую поверхность на нашем экране - белый квадрат
-    screen.blit(test_surface, (300, 100))
-
-    # размещаем новую поверхность на нашем экране - подготовленный jpeg
+    # размещаем новые поверхности на нашем экране
     screen.blit(back, (0, 0))
+    screen.blit(hero, (15, 130))
+    screen.blit(candle, (675, 30))
+    screen.blit(box, (700, 180))
+    screen.blit(pot, (675, 275))
 
     # обновляем экран игры
     pygame.display.update()
