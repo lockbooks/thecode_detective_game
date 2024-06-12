@@ -20,12 +20,12 @@ text_font = pygame.font.Font('prstartk.ttf', 15)
 
 # создаём новую поверхность
 # 1 - задаём размеры:
-width_ts = 800
+width_ts = 200
 height_ts = 200
 # 2 - создаём  поверхность по  размерам
 test_surface = pygame.Surface((width_ts, height_ts))
 # 3 - добавляем цвет
-test_surface.fill('Brown')
+test_surface.fill('White')
 
 # загружаем в переменную картинки из папки с нашим файлом
 back = pygame.image.load('code_game_back_floor.jpg').convert()
@@ -35,8 +35,8 @@ candle = pygame.image.load('candlestick.png').convert_alpha()
 box = pygame.image.load('wooden_box.png').convert_alpha()
 
 # объявляем переменные с начальными координатами для всех анимаций
-hero_x_pos = 75
-hero_y_pos = 180
+hero_x_pos = 15
+hero_y_pos = 130
 pot_x_pos = 800
 pot_y_pos = 275
 candle_x_pos = 800
@@ -44,13 +44,12 @@ candle_y_pos = 30
 box_x_pos = 800
 box_y_pos = 180
 
-# помещаем изображение в рамку прямоугольника
-# в скобках задаём точку привязки и координаты для неё
-hero_rect = hero.get_rect(center=(hero_x_pos, hero_y_pos))
-
 # создаём сигнальные переменные
 pot_flag = False
 box_flag = False
+
+is_move_up = False
+is_move_down = False
 
 # создаём объект текста: в скобках указываем текст, сглаживание и цвет
 text_surface = text_font.render('Detective CODE Game', False, 'White')
@@ -72,19 +71,37 @@ while game:
             # добавляем корректное завершение работы
             exit()
 
-        # получаем список всех нажатых клавиш
-        keys = pygame.key.get_pressed()
+        # keys = pygame.key.get_pressed()
+        #
+        # if keys[pygame.K_UP]:
+        #     hero_y_pos -= 15
+        # if keys[pygame.K_DOWN]:
+        #     hero_y_pos += 15
 
-        # если нажата клавиша вверх, поднимаем картинку
-        if keys[pygame.K_UP]:
-            hero_rect.top -= 20
-        # если нажата клавиша вниз, опускаем картинку
-        if keys[pygame.K_DOWN]:
-            hero_rect.top += 20
+    for event in pygame.event.get():
+
+        if event.type == pygame.KEYDOWN:
+            key = pygame.key.name(event.key)
+            if key == pygame.K_UP:
+                is_move_up = True
+            if key == pygame.K_DOWN:
+                is_move_down = True
+        if event.type == pygame.KEYUP:
+            key = pygame.key.name(event.key)
+            if key == pygame.K_UP:
+                is_move_up = False
+            if key == pygame.K_DOWN:
+                is_move_down = False
+
+    if is_move_up:
+        hero_y_pos -= 15
+
+    if is_move_down:
+        hero_y_pos += 15
 
     # размещаем все поверхности на нашем экране
     screen.blit(back, (0, 0))
-    screen.blit(hero, hero_rect)
+    screen.blit(hero, (hero_x_pos, hero_y_pos))
     screen.blit(candle, (candle_x_pos, candle_y_pos))
     screen.blit(box, (box_x_pos, box_y_pos))
     screen.blit(pot, (pot_x_pos, pot_y_pos))
