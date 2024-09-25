@@ -1,5 +1,6 @@
 import pygame
 from sys import exit
+import time
 
 pygame.init()
 
@@ -68,7 +69,7 @@ pygame.display.set_caption('Detective CODE Game')
 game = True
 
 # запускаем бесконечный цикл
-while game:
+while True:
     # получаем список возможных действий игрока
     for event in pygame.event.get():
         # если пользователь нажал на крестик закрытия окна
@@ -78,52 +79,88 @@ while game:
             # добавляем корректное завершение работы
             exit()
 
+        # перезапуск
+        if not game and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            # заново объявляем переменные с начальными координатами для всех анимаций
+            hero_x_pos = 75
+            hero_y_pos = 180
+            candle_x_pos = 900
+            candle_y_pos = 70
+            box_x_pos = 900
+            box_y_pos = 200
+            pot_x_pos = 900
+            pot_y_pos = 345
+
+            # заново помещаем изображения в рамки прямоугольника
+            # в скобках задаём точку привязки и координаты для неё
+            hero_rect = hero.get_rect(center=(hero_x_pos, hero_y_pos))
+            pot_rect = pot.get_rect(center=(pot_x_pos, pot_y_pos))
+            candle_rect = candle.get_rect(center=(candle_x_pos, candle_y_pos))
+            box_rect = box.get_rect(center=(box_x_pos, box_y_pos))
+
+            # заново создаём сигнальные переменные
+            pot_flag = False
+            box_flag = False
+
+            game = True
+
+    if game:
         # получаем список всех нажатых клавиш
         keys = pygame.key.get_pressed()
 
-        # если нажата клавиша вверх, двигаем картинку вверх
+        # если нажата клавиша вверх, двигаем игрока вверх
         if keys[pygame.K_UP]:
-            hero_rect.top -= 20
-        # если нажата клавиша вниз, двигаем картинку вниз
+            hero_rect.top -= 5
+        # если нажата клавиша вниз, двигаем игрока вниз
         if keys[pygame.K_DOWN]:
-            hero_rect.top += 20
+            hero_rect.top += 5
 
-    # размещаем все поверхности на нашем экране
-    screen.blit(back, (0, 0))
-    screen.blit(hero, hero_rect)
-    screen.blit(candle, candle_rect)
-    screen.blit(box, box_rect)
-    screen.blit(pot, pot_rect)
-    back.blit(text_surface, (250, 15))
+    if game:
+        # размещаем все поверхности на нашем экране
+        screen.blit(back, (0, 0))
+        screen.blit(hero, hero_rect)
+        screen.blit(candle, candle_rect)
+        screen.blit(box, box_rect)
+        screen.blit(pot, pot_rect)
+        back.blit(text_surface, (250, 15))
 
-    # запускаем движение всех предметов
-    candle_rect.left -= 4
-    # когда подсвечник пересёк половину экрана,
-    # меняем сигнульную переменную для чайника и начинаем его движение
-    if candle_rect.left <= 400:
-        pot_flag = True
-    if pot_flag:
-        pot_rect.left -= 4
+        # запускаем движение всех предметов
+        candle_rect.left -= 4
+        # когда подсвечник пересёк половину экрана,
+        # меняем сигнульную переменную для чайника и начинаем его движение
+        if candle_rect.left <= 400:
+            pot_flag = True
+        if pot_flag:
+            pot_rect.left -= 4
 
-    # когда чайник пересёк половину экрана,
-    # меняем сигнульную переменную для ящика и начинаем его движение
-    if pot_rect.left <= 400:
-        box_flag = True
-    if box_flag:
-        box_rect.left -= 4
+        # когда чайник пересёк половину экрана,
+        # меняем сигнульную переменную для ящика и начинаем его движение
+        if pot_rect.left <= 400:
+            box_flag = True
+        if box_flag:
+            box_rect.left -= 4
 
-    # обнуляем начальные координаты, когда правая грань
-    # скрылась за границей экрана
-    if candle_rect.right <= 0:
-        candle_rect.left = 800
-    if pot_rect.right <= 0:
-        pot_rect.left = 800
-    if box_rect.right <= 0:
-        box_rect.left = 1000
+        # обнуляем начальные координаты, когда правая грань
+        # скрылась за границей экрана
+        if candle_rect.right <= 0:
+            candle_rect.left = 800
+        if pot_rect.right <= 0:
+            pot_rect.left = 800
+        if box_rect.right <= 0:
+            box_rect.left = 1000
 
-    # выводим сообщения о столкновении
-    if hero_rect.colliderect(candle_rect) or hero_rect.colliderect(pot_rect) or hero_rect.colliderect(box_rect):
-        screen.blit(text_collide, (200, 165))
+        # выводим сообщения о столкновении
+        if (hero_rect.colliderect(candle_rect) or
+            hero_rect.colliderect(pot_rect) or
+            hero_rect.colliderect(box_rect)):
+            screen.blit(text_collide, (200, 165))
+            # это новый блок
+            pygame.display.flip()
+            time.sleep(2)
+            game = False
+
+    else:
+        screen.fill('Purple')
 
     # обновляем экран игры
     pygame.display.update()
