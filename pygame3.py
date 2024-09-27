@@ -1,21 +1,22 @@
+# импортируем зависимости и дополнительные модули
 import pygame
 from sys import exit
 import time
 
+# включаем модуль pygame
 pygame.init()
 
 # объявляем ширину и высоту экрана
 width = 800
 height = 400
-
 # создаём экран игры
 screen = pygame.display.set_mode((width, height))
-
 # устанавливаем количество кадров в секунду
 fps = 60
 # создаём объект таймера
 clock = pygame.time.Clock()
-# НОВОЕ!!! начальная точка отсчёта времени
+
+# добавляем счётчики для подсчёта времени в игре - это будут наши очки
 start_time = 0
 final_score = 0
 
@@ -27,49 +28,56 @@ pot = pygame.image.load('teapot.png').convert_alpha()
 candle = pygame.image.load('candlestick.png').convert_alpha()
 box = pygame.image.load('wooden_box.png').convert_alpha()
 
-# !!! НОВОЕ!!! ещё одна настройка для новой игры
-# создаём объекты шрифта: в скобках указываем шрифт и размер через запятую
-# !!! НОВОЕ новый текст
-# создаём объект текста: в скобках указываем текст, сглаживание и цвет
-text_font = pygame.font.Font('prstartk.ttf', 15)
-text_surface = text_font.render('Detective CODE Game', False, 'White')
-text_name_rect = text_surface.get_rect(center=(400, 30))
-
-text_font_collide = pygame.font.Font('prstartk.ttf', 50)
-text_collide = text_font_collide.render('CoLLiDE!!', False, 'Red')
-text_collide_rect = text_collide.get_rect(center=(400, 200))
-
-text_font_new_game = pygame.font.Font('prstartk.ttf', 20)
-text_newgame_str1 = text_font_new_game.render('If you want to start,', False, 'Green')
-text_newgame_rect1 = text_newgame_str1.get_rect(center=(400, 325))
-text_newgame_str2 = text_font_new_game.render('press space', False, 'Green')
-text_newgame_rect2 = text_newgame_str2.get_rect(center=(400, 350))
-
-text_font_score = pygame.font.Font('prstartk.ttf', 15)
-
-text_ts_font = pygame.font.Font('prstartk.ttf', 20)
-# text_ts_text = text_ts_font.render('Total score: {xxx}', False, 'White')
-# text_ts_rect = text_ts_text.get_rect(center=(400, 250))
-
 # даём название окну игры
 pygame.display.set_caption('Detective CODE Game')
 
 # объявляем переменную-флаг для цикла игры
 game = False
 
+# создаём объекты текста: в первой строчке задаём настройки шрифта,
+# во второй сам текст и его цвет, в третьей - помещаем текст
+# в прямоугольную рамку и размещаем на заднных координатах
 
-# НОВОЕ!! подсчёт очков
+# текст с названием игры
+text_font = pygame.font.Font('prstartk.ttf', 15)
+text_surface = text_font.render('Detective CODE Game', False, 'White')
+text_name_rect = text_surface.get_rect(center=(400, 30))
+
+# текст с сообщением о столкновении
+text_font_collide = pygame.font.Font('prstartk.ttf', 50)
+text_collide = text_font_collide.render('CoLLiDE!!', False, 'Red')
+text_collide_rect = text_collide.get_rect(center=(400, 200))
+
+# текст главного меню
+text_font_new_game = pygame.font.Font('prstartk.ttf', 20)
+text_newgame_str1 = text_font_new_game.render('If you want to start,', False, 'Green')
+text_newgame_rect1 = text_newgame_str1.get_rect(center=(400, 325))
+text_newgame_str2 = text_font_new_game.render('press space', False, 'Green')
+text_newgame_rect2 = text_newgame_str2.get_rect(center=(400, 350))
+
+# текст для подсчёта очков
+text_font_score = pygame.font.Font('prstartk.ttf', 15)
+# текст для вывода очков при окончании игры
+text_ts_font = pygame.font.Font('prstartk.ttf', 20)
+
+
+# функция подсчёта очков
 def display_score():
+    # получаем время текущей игры: от общего времени в игре мы
+    # отнимаем время, сыгранное за время запуска скрипта
     current_time = pygame.time.get_ticks() - start_time
+    # создаём объект текста количества очков - сыгранное время
     score_surface = text_font_score.render(f'{current_time}', False, 'Purple')
+    # помещаем текст с количеством очков в прямоугольник
     score_rect = score_surface.get_rect(bottomright=(795, 395))
+    # размещаем прямоугольник на поверхности
     screen.blit(score_surface, score_rect)
-
-    return score_rect
 
 
 # Функция для сброса начальных параметров
 def reset_game():
+    # делаем видимыми переменные: объекты всех видимых моделей,
+    # отметки о движении предметов и главный флаг запущенной игры
     global hero_rect, pot_rect, candle_rect, box_rect, pot_flag, box_flag, game
 
     # объявляем начальные координаты для всех объектов
@@ -92,13 +100,8 @@ def reset_game():
     pot_flag = False
     box_flag = False
 
-    # сбрасываем финальный счет
-    final_score = 0
 
-    # game = True
-
-
-# Инициализация игры перед началом
+# запускаем функцию начального состояния игры
 reset_game()
 
 # запускаем бесконечный цикл
@@ -112,29 +115,33 @@ while True:
             # добавляем корректное завершение работы
             exit()
 
-        # !!! НОВОЕ !!! перезапуск
+        # если флаг игры неактивен (игра окончена), при этом нажата клавиша пробела:
         if not game and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            # то сбрасываем состояние игры до начального состояния...
             reset_game()
+            # устанавливаем флаг игры на активный (запущена)...
             game = True
+            # и получаем общее отыгранное время
             start_time = pygame.time.get_ticks()
 
+    # если флаг игры активен (запущена)
     if game:
-        # получаем список всех нажатых клавиш
+        # получаем список всех зажатых клавиш
         keys = pygame.key.get_pressed()
-
-        # если нажата клавиша вверх, двигаем игрока вверх !!! НОВОЕ!!! добавили проаерку границ и плавное передвижение
+        # если зажата клавиша вверх, двигаем игрока вверх
         if keys[pygame.K_UP]:
             hero_rect.top -= 5
+            # если модель игрока достигла верхней границы, останавливаем движение
             if hero_rect.top <= 0:
                 hero_rect.top = 0
-        # если нажата клавиша вниз, двигаем игрока вниз
+        # если зажата клавиша вниз, двигаем игрока вниз
         if keys[pygame.K_DOWN]:
             hero_rect.top += 5
+            # если модель игрока достигла нижней границы, останавливаем движение
             if hero_rect.bottom >= 400:
                 hero_rect.bottom = 400
 
-    if game:
-        # размещаем все поверхности на нашем экране
+        # размещаем все поверхности на главном экране
         screen.blit(back, (0, 0))
         screen.blit(hero, hero_rect)
         screen.blit(candle, candle_rect)
@@ -167,29 +174,40 @@ while True:
         if box_rect.right <= 0:
             box_rect.left = 1000
 
-        # выводим сообщения о столкновении
+        # если модель игрока столкнулась с одним из предметов...
         if (hero_rect.colliderect(candle_rect) or
             hero_rect.colliderect(pot_rect) or
             hero_rect.colliderect(box_rect)):
-            screen.blit(text_collide, text_collide_rect)
 
-            # Вычисляем финальное время и сохраняем его
+            # то выводим сообщение о столкновении
+            screen.blit(text_collide, text_collide_rect)
+            # вычисляем общее время последней игры в секундах
             final_score = (pygame.time.get_ticks() - start_time) // 1000
+            # создаём объект текста с выводом количества очков
             text_ts_text = text_ts_font.render(f'Total time: {final_score} sec', False, 'White')
+            # помещаем текст в прямоугольник
             text_ts_rect = text_ts_text.get_rect(center=(400, 250))
+            # размещаем прямоугольник текста на главном экране
             screen.blit(text_ts_text, text_ts_rect)
 
-            # это новый блок
+            # обновляем экран, чтобы появилось сообщение
+            # об окончании игры после столкновения
             pygame.display.flip()
-            time.sleep(2)
+            # делаем паузу в 3 секунды
+            time.sleep(3)
+            # переставляем флаг игры в неактивный (окончена)
             game = False
 
+        # выводим на экран финальные очки
         display_score()
 
+    # если флаг игры не активен (окончена):
     else:
+        # выводим на экран фон главного окна игры
         screen.blit(back_main_screen, (0, 0))
+        # и чёрную плашку-прямоугольник, поверх которой разместим текст
         pygame.draw.rect(back_main_screen, 'Black', (100, 300, 600, 80))
-
+        # выводим на экран две строки текста с предложением начать игру
         screen.blit(text_newgame_str1, text_newgame_rect1)
         screen.blit(text_newgame_str2, text_newgame_rect2)
 
